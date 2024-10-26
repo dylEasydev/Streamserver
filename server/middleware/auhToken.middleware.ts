@@ -7,26 +7,33 @@ class AuthToken {
 
     async secureMiddleware(req:Request ,res:Response ,next :()=>void){
        try {
-            const bearerToken = req.headers.authorization;
+            const token_query = typeof req.query.token === 'string'?req.query.token : undefined;
+            if(token_query){
+                req.body.token = await generateToken.verifyToken<Token>(token_query);
+                next();
+            }else{
+                const bearerToken = req.headers.authorization;
 
-            if(!bearerToken){
-                return statusResponse.sendResponseJson(
-                    CodeStatut.NOT_PERMISSION_STATUS,
-                    res,
-                    `Aucun Token n'as été fourni !`
-                );
-            }
+                if(!bearerToken){
+                    return statusResponse.sendResponseJson(
+                        CodeStatut.NOT_PERMISSION_STATUS,
+                        res,
+                        `Aucun Token n'as été fourni !`
+                    );
+                }
 
-            const token = bearerToken.split(' ')[1];
-            if(!token){
-                return statusResponse.sendResponseJson(
-                    CodeStatut.NOT_PERMISSION_STATUS,
-                    res,
-                    `Aucun Token n'as été fourni !`
-                );
+                const token = bearerToken.split(' ')[1];
+                if(!token){
+                    return statusResponse.sendResponseJson(
+                        CodeStatut.NOT_PERMISSION_STATUS,
+                        res,
+                        `Aucun Token n'as été fourni !`
+                    );
+                }
+                req.body.token = await generateToken.verifyToken<Token>(token);
+                next();
             }
-            req.body.token = await generateToken.verifyToken<Token>(token);
-            next();
+            
        } catch (error) {
             if((error instanceof JsonWebTokenError)||(error instanceof NotBeforeError)||(error instanceof TokenExpiredError)){
                 return statusResponse.sendResponseJson(

@@ -6,7 +6,8 @@ export enum CodeStatut{
     NOT_FOUND_STATUS = 404,
     CLIENT_STATUS = 400,
     UNAUTH_STATUS = 401,
-    NOT_PERMISSION_STATUS = 403
+    NOT_PERMISSION_STATUS = 403,
+    STREAM_STATUS = 206
 };
 export class StatusResponse{
     public sendResponseJson(code:CodeStatut , res: Response ,message:string , data?:unknown){
